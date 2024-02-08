@@ -11,7 +11,9 @@ def select_point(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN and len(points) < 4:
         points.append((x, y))
         bbox = (int(x-width/2), int(y-height/2), width, height)
-        trackers.append(bbox)
+        tracker = cv2.TrackerCSRT.create()
+        tracker.init(first_frame,bbox)
+        trackers.append(tracker)
         if len(points) == 4:
             print("All trackers initialized.")
 def track(iter,x,y,w,h,last_dim,p,template):
@@ -41,14 +43,22 @@ def midpoint(pt1, pt2, pt3, pt4):
     pt2 += (1,)
     pt3 += (1,)
     pt4 += (1,)
-    print(pt1)
     diagonal1 = np.cross(pt1,pt3)
     diagonal2 = np.cross(pt2,pt4)
     homo_midpoint = np.cross(diagonal1,diagonal2)
     midpoint_norm = homo_midpoint / homo_midpoint[2]
     midpoint = midpoint_norm[:2]
     return midpoint
-
+def midline(pt1,pt2,pt3,pt4, midpoint):
+    pt1 += (1,)
+    pt2 += (1,)
+    pt3 += (1,)
+    pt4 += (1,)
+    line1 = np.cross(pt1,pt2)
+    line2 = np.cross(pt3,pt4)
+    vanish = np.cross(line1,line2)
+    midline = np.cross(midpoint,vanish)
+    return midline
 # Setup video capture
 cap = cv2.VideoCapture(0)
 
@@ -69,20 +79,7 @@ ps = [p1,p2,p3,p4]
 templates = []
 last_dims = []
 four_points = [0,0,0,0]
-for i in range(4):
-    x = trackers[i][0]
-    y = trackers[i][1]
-    w = trackers[i][2]
-    h = trackers[i][3]
-    X = np.arange(x, x + w, dtype=np.float32)
-    Y = np.arange(y, y + h, dtype=np.float32)
-    X, Y = np.meshgrid(X, Y)
 
-    first_frame_gray = cv2.cvtColor(first_frame, cv2.COLOR_RGB2GRAY)
-    template = cv2.remap(first_frame_gray, X, Y, cv2.INTER_LINEAR)
-    last_dim = np.zeros_like(template)
-    templates.append(template)
-    last_dims.append(last_dim)
 max_iter = 50
 while True:
     ret, frame = cap.read()
@@ -92,27 +89,31 @@ while True:
     # Update and draw trackers
     for tracker in trackers:
         frame_gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-        u = np.array([0, 0])
-        iter = 0
-        x = tracker[0]
-        y = tracker[1]
-        w = tracker[2]
-        h = tracker[3]
-        last_dim = last_dims[i]
-        template = templates[i]
-
-        motion_vector = track(iter, x, y, w, h, last_dim, ps[i],template)
-        ps[i] = motion_vector
-        point = (x + int(motion_vector[0])+int(width/2), y + int(motion_vector[1])+int(height/2))
-        four_points[i] = point
-        cv2.rectangle(frame, (x + int(motion_vector[0]), y + int(motion_vector[1])), (x + int(motion_vector[0]) + w, y + int(motion_vector[1]) + h), (0, 255, 0), 2)
-
+        success, bbox = tracker.update(frame)
+        if success:
+            p1 = (int(bbox[0]), int(bbox[1]))
+            p2 = (int(bbox[0]+ bbox[2]), int(bbox[1]+bbox[3]))
+            cv2.rectangle(frame, p1,p2,(255,0,0),2,1)
+            x = (p1[0]+p2[0])/2
+            y = (p1[1]+p2[1])/2
+            point = (int(x),int(y))
+            four_points[i] = point
         i+=1
-    # print(type(points))
     mp = midpoint(four_points[0],four_points[1],four_points[2],four_points[3])
     mp = (int(mp[0]), int(mp[1]))
-    print(mp)
     cv2.circle(frame, mp, 5, (0, 255, 0), -1)
+    mp += (1,)
+    ml = midline(four_points[0],four_points[1],four_points[2],four_points[3],mp)
+    x_max = frame.shape[0]
+    y_max = frame.shape[1]
+    a,b,c = ml
+    x1,x2 = 0,frame.shape[1]
+    y1 = int((-a/b)*x1-(c/b))
+    y2 = int((-a/b) * x2 - (c/b))
+    # y1 = max(0,min(x_max-1,y1))
+    # y2 = max(0,min(x_max-1,y2))
+    print(x1,y1,x2,y2)
+    cv2.line(frame, (x1,y1),(x2,y2),(255,0,0),2)
     cv2.imshow('Tracking', frame)
     # Break the loop on 'q' press
     if cv2.waitKey(1) & 0xFF == ord('q'):
