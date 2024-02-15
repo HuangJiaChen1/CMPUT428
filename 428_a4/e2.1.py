@@ -1,4 +1,6 @@
 import cv2
+from matplotlib import pyplot as plt
+
 XL = []
 YL = []
 def click_event(event, x, y, flags, param):
@@ -13,13 +15,9 @@ ret, image = cap.read()
 
 cv2.imshow('Image', image)
 cv2.setMouseCallback('Image', click_event)
-
-# Release the VideoCapture object
 cap.release()
-
-# Wait for the 'Enter' key press
 while True:
-    if cv2.waitKey(1) == 13:  # 13 is the Enter Key
+    if cv2.waitKey(1) == 13:
         break
 
 cv2.destroyAllWindows()
@@ -58,4 +56,9 @@ for i in range(len(XL)):
     print(Z)
     x = xl*Z/focal_length
     y = yl*Z/focal_length
-    plot_point.append((x,y))
+    plot_point.append([x,Z,y])
+print(plot_point)
+fig = plt.figure(figsize=(4, 4))
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(plot_point[0], plot_point[1], plot_point[2])
+plt.show()

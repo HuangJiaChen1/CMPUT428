@@ -19,6 +19,7 @@ ijk = np.float32([
     [0,0,1,10],
 ])
 perspective = np.dot(p,ijk)
+# print(perspective)
 rot = np.float32([
     [math.cos(math.radians(45)), math.sin(math.radians(45)),0,0],
     [0,1, 0,0],
@@ -58,9 +59,9 @@ def rectangle():
 # Circle
 def circle():
     theta = np.linspace(0, 2 * np.pi, 100)
-    x = 0.5 * np.cos(theta)  # Radius of 0.5
+    x = 0.5 * np.cos(theta)
     y = 0.5 * np.sin(theta)
-    z = np.zeros(100)  # Circle in the XY plane
+    z = np.zeros(100)
     circle = np.vstack([x, y, z,np.ones((1,100))])
     fig = plt.figure(figsize=(4, 4))
     ax = fig.add_subplot(111, projection='3d')
@@ -85,10 +86,7 @@ def circle():
     ax.set_aspect('equal')
     plt.show()
 
-
-# Cube (Wireframe edges)
 def cube():
-    # Generate points along the edges of a cube
     points = []
     for edge in [(0, 1), (1, 1), (1, 0), (0, 0), (0, 0)]:
         x = np.linspace(0, 1, 100)
