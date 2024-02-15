@@ -36,3 +36,4 @@ print(distance)
 ratio = 0.5
 focal_length = distance/ratio
 print(focal_length)
+
