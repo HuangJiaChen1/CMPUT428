@@ -70,38 +70,37 @@ y_diffs = np.array(y_diffs)
 xl = np.array(xl)
 yl = np.array(yl)
 print(xl)
+
+# fb = np.zeros((9,1))
+# fb+=600
+# z = fb/x_diffs
+# print(z)
+# z = np.mean(z,axis=0)
+# x = xl*z/fb
+# x = np.mean(x,axis=0)
+# print(x)
+# y = yl*z/fb
+# y = np.mean(y,axis=0)
+# print(y)
+# print(z)
+
+
 fb = np.zeros((9,1))
 fb+=600*8
-z = np.linalg.lstsq(x_diffs,fb)[0]
-print(z)
-fb = np.zeros((9,1))
-fb+=600
-z = fb/x_diffs
-print(z)
-z = np.mean(z,axis=0)
-f = np.zeros((9,8))
+z,  residuals, rank, s= np.linalg.lstsq(x_diffs,fb,rcond=None)
+print(z, residuals, rank, s)
+f = np.zeros((8,1))
 f += 600
-# print(np.dot(xl,z))
-# x = np.linalg.lstsq(f,np.dot(xl,z))[0]
-# y = np.linalg.lstsq(f,np.dot(yl,z))[0]
-xl = np.mean(xl,axis=0)
-yl = np.mean(yl,axis=0)
-print(xl.shape)
-X = []
-Y =[]
-for i in range(8):
-    x = z[i]*xl[i]/600
-    y = z[i]*yl[i]/600
-    X.append(x)
-    Y.append(y)
-X = np.array(X)
-Y = np.array(Y)
-print(X)
-print(Y)
-print(z)
+print(np.dot(xl,z))
+# x, residuals, rank, s = np.linalg.lstsq(f,np.dot(xl[0],z),rcond=None)
+# y = np.linalg.lstsq(f,np.dot(yl[0],z),rcond=None)[0]
+x = xl[0]*z.T/f.T
+y = yl[0]*z.T/f.T
+print(x)
+print(y)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.scatter(np.squeeze(X),np.squeeze(z.T),np.squeeze(Y))
+ax.scatter(np.squeeze(x),np.squeeze(y),-np.squeeze(z.T))
 # plt.xlim([-1,1])
 # plt.ylim([-1,1])
 plt.show()
