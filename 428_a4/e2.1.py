@@ -44,7 +44,7 @@ while True:
 
 cv2.destroyAllWindows()
 
-focal_length = 600
+focal_length = 500
 # print(XL)
 # print(YL)
 d = 5
@@ -58,7 +58,7 @@ for i in range(len(XL)):
     Z = d*focal_length/(xl-xr)
     # print(Z)
     x = xl*Z/focal_length
-    y = yl*Z/focal_length
+    y = -yl*Z/focal_length
     plot_point_x.append(x)
     plot_point_y.append(Z)
     plot_point_z.append(y)
@@ -68,5 +68,4 @@ print(plot_point_x,
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 ax.scatter(plot_point_x, plot_point_y, plot_point_z)
-ax.set_aspect('auto')
 plt.show()

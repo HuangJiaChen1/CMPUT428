@@ -66,6 +66,7 @@ for i in range(10):
     ijk[0, -1] += 1
     perspective = np.dot(p, ijk)
 x_diffs = np.array(x_diffs)
+print(x_diffs)
 y_diffs = np.array(y_diffs)
 xl = np.array(xl)
 yl = np.array(yl)
@@ -86,11 +87,11 @@ print(xl)
 
 
 fb = np.zeros((9,1))
-fb+=600*8
+fb+=500*8
 z,  residuals, rank, s= np.linalg.lstsq(x_diffs,fb,rcond=None)
 print(z, residuals, rank, s)
 f = np.zeros((8,1))
-f += 600
+f += 500
 print(np.dot(xl,z))
 # x, residuals, rank, s = np.linalg.lstsq(f,np.dot(xl[0],z),rcond=None)
 # y = np.linalg.lstsq(f,np.dot(yl[0],z),rcond=None)[0]
