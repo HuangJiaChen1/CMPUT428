@@ -67,9 +67,9 @@ M = np.dot(U[:,:3],np.diag(D[:3]))
 print(M)
 print(VT.shape)
 coord = VT[:3,:]
-z= coord[0,:]
+x= coord[0,:]
 y = coord[1,:]
-x = coord[2,:]
+z = coord[2,:]
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 ax.scatter(x, y, z)
@@ -89,9 +89,9 @@ M = np.dot(U[:,:3],np.diag(D[:3]))
 print(M)
 print(VT.shape)
 coord = VT[:3,:]
-z= coord[0,:]
+x= coord[0,:]
 y = coord[1,:]
-x = coord[2,:]
+z = coord[2,:]
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 ax.scatter(x, y, z)

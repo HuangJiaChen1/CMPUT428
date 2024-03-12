@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import os
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 # Path to the directory containing frames
 frames_path = 'frames'
@@ -70,7 +72,7 @@ cv2.destroyAllWindows()
 print(coords_list)
 coords_array = np.array(coords_list)
 print(coords_array.shape)
-W = coords_array.transpose(0,2,1).reshape(240,num_points)
+W = coords_array.transpose(0,2,1).reshape(240,num_points).astype("float64")
 print(W.shape)
 print(W)
 mean_W = np.mean(W,axis=1)
