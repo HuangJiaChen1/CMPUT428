@@ -19,10 +19,12 @@ if frame is None:
 # List to store the points
 points = []
 trackers = []
-
+num_points = 0
 def select_point(event, x, y, flags, params):
+    global num_points
     if event == cv2.EVENT_LBUTTONDOWN:
         points.append((x, y))
+        num_points += 1
 cv2.namedWindow("Frame")
 
 cv2.setMouseCallback("Frame", select_point)
@@ -32,10 +34,11 @@ while True:
     key = cv2.waitKey(1) & 0xFF
     if key == ord("q"):
         break
-
-trackers = cv2.MultiTracker_create()
 for point in points:
-    trackers.add(cv2.TrackerCSRT_create(), frame, (point[0] - 10, point[1] - 10, 20, 20))
+    tracker= cv2.TrackerMIL_create()
+    tracker.init(frame, (point[0] - 10, point[1] - 10, 20, 20))
+    trackers.append(tracker)
+print(trackers)
 coords_list = []
 
 # Track points for the next 120 frames (or as many as we have)
@@ -66,8 +69,25 @@ print(points)
 cv2.destroyAllWindows()
 print(coords_list)
 coords_array = np.array(coords_list)
-W = coords_array.transpose(2, 0, 1).reshape(2, -1).T
-
-# W is your final matrix
+print(coords_array.shape)
+W = coords_array.transpose(0,2,1).reshape(240,num_points)
 print(W.shape)
 print(W)
+mean_W = np.mean(W,axis=1)
+for i in range(W.shape[1]):
+    W[:,i] -= mean_W
+U,D,VT = np.linalg.svd(W)
+M = np.dot(U[:,:3],np.diag(D[:3]))
+print(M)
+print(VT.shape)
+coord = VT[:3,:]
+z= coord[0,:]
+y = coord[1,:]
+x = coord[2,:]
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(x, y, z)
+ax.set_xlabel('X Label')
+ax.set_ylabel('Y Label')
+ax.set_zlabel('Z Label')
+plt.show()
